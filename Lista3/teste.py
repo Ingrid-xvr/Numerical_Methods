@@ -134,7 +134,7 @@ L, U, mat = LU_decomposition(mat_inicial)
 # L, U, mat2, a = LU_decomposition(mat_inicial)
 
 # Define a opção de impressão para suprimir a notação científica e imprimir em formato decimal
-np.set_printoptions(suppress=True, formatter={'float': '{:0.5f}'.format})
+#np.set_printoptions(suppress=True, formatter={'float': '{:0.5f}'.format})
 
 #Se coloca LU dentro da função não funciona
 # LU = L @ U

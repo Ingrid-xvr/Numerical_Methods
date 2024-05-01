@@ -4,32 +4,37 @@ class Pivoteamento:
     def __init__(self, matriz):
         self.matriz = matriz
 
+    def print_matrix(matriz):
+        max_len = max(len(str(element)) for row in matriz for element in row)
+        for row in matriz:
+            print(" ".join(str(element).ljust(max_len) for element in row))
+
     def pivotear(self):
         n = len(self.matriz)
         m = len(self.matriz[0])  # número de colunas
         permute_line = np.array(n)
         permute_colum = np.array(n)
         
-        for i in range(n):
-            permute_line[i] = i
-            permute_colum[i] = i
+        # for i in range(n):
+        #     permute_line[i] = i
+        #     permute_colum[i] = i
 
         for i in range(n):
             # Encontrar o maior elemento na coluna atual
             max_value = abs(self.matriz[i][i])
             max_row = i
             max_col = i 
-            
+
             for j in range(i + 1, n):
                 for k in range(i, m):
                     if abs(self.matriz[j][k]) > max_value:
                         max_value = abs(self.matriz[j][k])
-                        max_row = j
-                        max_col = k
-            permute_line[i] = max_row
-            permute_line[max_row] = i
-            permute_colum[i] = max_col
-            permute_colum[max_col] = i
+                        # max_row = j
+                        # max_col = k
+                        # permute_line[i] = max_row
+                        # permute_line[max_row] = i
+                        # permute_colum[i] = max_col
+                        # permute_colum[max_col] = i
 
             # Trocar a linha atual pela linha com o maior elemento
             self.matriz[i], self.matriz[max_row] = self.matriz[max_row].copy(), self.matriz[i].copy()
@@ -79,17 +84,20 @@ class Pivoteamento:
                 L[i, j] = mat[i, j]
         print("\nMatriz L:")
         print(L)
-
+        
         for j in range(n):
             for i in range(j+1):
                 U[i,j] = mat[i, j]
         print("\nMatriz U:")
         print(U)
 
+        LU = L @ U
         print("\nL*U")
-        print(L @ U)
+        print(LU)
 
-        return L, U, mat
+        return L, U, LU, mat
+        
+
         # def ranquear(self):
     #     # Ranquear
     #     n = len(self.matriz)
@@ -107,14 +115,14 @@ class Pivoteamento:
 #                    [1., 0., 1.],
 #                    [1., 1., 1.]])
 
-# matriz = np.array([[4., 1., 3., 3.],
-#                    [2., 0., 1., 1.],
-#                    [8., 5., 9., 7.],
-#                    [6., 8., 9., 7.]])
+matriz = np.array([[4., 1., 3., 3.],
+                   [2., 0., 1., 1.],
+                   [8., 5., 9., 7.],
+                   [6., 8., 9., 7.]])
 
-matriz = np.array([[4., 1., 3.],
-                   [2., 0., 1.],
-                   [8., 5., 9.]])
+# matriz = np.array([[4., 1., 3.],
+#                    [2., 0., 1.],
+#                    [8., 5., 9.]])
 
 
 
@@ -125,6 +133,8 @@ matriz = np.array([[4., 1., 3.],
 #                     [0.806562, 0.439186, 0.142284, 0.027687, 0.0794711]])
 
 pivoteamento = Pivoteamento(matriz)
+
+#arrumar as casas decimais
 matriz_pivotada = pivoteamento.pivotear()
 #matriz_final = pivoteamento.ranquear(matriz)
 matriz_decomposta = pivoteamento.LU_decomposition()
