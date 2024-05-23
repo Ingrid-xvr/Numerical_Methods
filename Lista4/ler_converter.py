@@ -1,49 +1,64 @@
 import re
 import numpy as np
+import tokenize
 
 class SparseMatrix:
     def __init__(self, matrix=None, file_path=None):
+
         if file_path:
-            # Se o caminho do arquivo for fornecido, lê a matriz do arquivo
-            with open(file_path, 'r') as file:
-                linhas = file.readlines()
+            with tokenize.open(file_path) as file:
+                tokens = tokenize.generate_tokens(file.readline)
+                nnz = 0
+                col = -1
+                line = -2
 
-            matriz_linhas = []
+                self.data = []
+                self.col = []
+                self.ptr = [0]
+                for token in tokens:
+                    if token.string == '{':
+                        line+=1
+                        nnz = 0
+                    elif token.type == tokenize.NUMBER:
+                        col += 1
+                        el = float(token.string)
+                        if el >= 1e-10:
+                            self.data.append(el)
+                            self.col.append(col)
+                            nnz += 1
+                    elif token.string == '}':
+                        self.ptr.append(self.ptr[-1] + nnz)
+                        col = -1
+            self.ptr.pop()
+            self.rows = len(self.ptr)-1
+            self.cols = self.rows
 
-            for linha in linhas[2:-2]:
-                elementos = re.findall(r'[-+]?\d*\.\d+|[-+]?\d+', linha)  
-                matriz_linhas.append(elementos)
-
-            max_len = max(len(linha) for linha in matriz_linhas)
-
-            for linha in matriz_linhas:
-                linha.extend(['0'] * (max_len - len(linha)))
-
-            self.matrix = np.array(matriz_linhas, dtype=float)
         elif matrix:
             # Se uma matriz for fornecida diretamente
             self.matrix = matrix
+
+            self.rows, self.cols = self.matrix.shape
+            self.data = [] 
+            self.col = [] 
+            self.ptr = [0]
+
+            for i in range(self.rows):
+                for j in range(self.cols):
+                    if self.matrix[i][j] != 0:
+                        self.data.append(self.matrix[i][j])
+                        self.col.append(j)
+                self.ptr.append(len(self.data))
         else:
             raise ValueError("Fornecer ou uma matriz ou um caminho de arquivo.")
 
-        self.rows, self.cols = self.matrix.shape
-        self.data = [] 
-        self.col = [] 
-        self.ptr = [0]
-
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.matrix[i][j] != 0:
-                    self.data.append(self.matrix[i][j])
-                    self.col.append(j)
-            self.ptr.append(len(self.data))
+        
 
     def print_matrix(self):
-        print("data:", self.data)
+        #print("data:", self.data)
         print("N° elementos data:", len(self.data))
-        print("col:", self.col)
+        #print("col:", self.col)
         print("N° elementos col:", len(self.col))
-        print("ptr:", self.ptr)
+        #print("ptr:", self.ptr)
         print("N° elementos ptr:", len(self.ptr))
 
     def sparsity_index(self):
@@ -72,7 +87,7 @@ class SparseMatrix:
         tamanho_total = tamanho_data + tamanho_col + tamanho_ptr
         return tamanho_total
 
-# Lendo a matriz do arquivo .dat e usando-a
+# Lendo a matriz do arquivo .dat 
 sparse_matrix_file = SparseMatrix(file_path='matrix.dat')
 sparse_matrix_file.print_matrix()
 
@@ -87,16 +102,9 @@ with open('rhs.dat', 'r') as file:
 print("Tamanho do vetor:", len(vector))
 print("Número de colunas da matriz:", sparse_matrix_file.cols)
 
-# Convertendo a matriz esparsa para matriz cheia
-dense_matrix = np.array(sparse_matrix_file.matrix)
-
 # Multiplicação da matriz esparsa pelo vetor
 result_sparse = sparse_matrix_file.multiply_sparse_vector(vector)
-print("Resultado da multiplicação da matriz esparsa pelo vetor:", result_sparse)
-
-# Multiplicação da matriz cheia pelo vetor
-result_dense = np.dot(dense_matrix, vector)
-print("Resultado da multiplicação da matriz cheia pelo vetor:", result_dense)
+#print("Resultado da multiplicação da matriz esparsa pelo vetor:", result_sparse)
 
 # Comparando o consumo de memória
 memoria_cheia = sparse_matrix_file.consumo_memoria_cheia()
