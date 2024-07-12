@@ -60,23 +60,6 @@ for i, (t, w) in enumerate(sol):
 iterations = np.arange(len(sol))
 
 plt.figure(figsize=(10, 6))
-
-if all(error > 0 for error in errors):
-    plt.yscale('log')
-else:
-    plt.yscale('linear')
-
-plt.plot(iterations, errors, marker='o', linestyle='-', color='b', label='Erro (Exato - Runge-Kutta Butcher)')
-plt.title('Erro entre a solução exata e a solução numérica (Runge-Kutta Butcher)')
-plt.xlabel('Iterações')
-plt.ylabel('Erro')
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
-plt.savefig('/home/ingrid/Relatorios_Numerico/Lista7/Figuras/erro.pdf', format='pdf')
-plt.show()
-
-plt.figure(figsize=(10, 6))
 plt.plot(t_values, [y for t, y in sol], label='Runge-Kutta Butcher (numérico)', marker='o')
 plt.plot(t_values, exact_values, label='Exato', linestyle='--')
 plt.title('Comparação da solução numérica com a solução exata')
